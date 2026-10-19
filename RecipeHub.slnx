@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/RecipeHub.Api/RecipeHub.Api.csproj" Id="2cc3bdb5-0f8c-4bae-b0e3-3ec04772f6ca" />
+  <Project Path="src/RecipeHub.Application/RecipeHub.Application.csproj" Id="c540cde1-52d7-428a-bcad-b7116ab65ed0" />
+  <Project Path="src/RecipeHub.Infrastructure/RecipeHub.Infrastructure.csproj" />
+</Solution>

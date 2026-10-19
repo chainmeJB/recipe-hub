@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RecipeHub.Infrastructure": {
+      "commandName": "Project"
+    },
+    "Профиль 1": {
+      "commandName": "Project"
+    }
+  }
+}
