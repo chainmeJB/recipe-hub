@@ -3,9 +3,7 @@
     public class ImageDto
     {
         public int Id { get; set; }
-
         public int RecipeId { get; set; }
-        public RecipeDto Recipe { get; set; } = null!;
 
         public string Url { get; set; } = string.Empty;
         public int Position { get; set; }
