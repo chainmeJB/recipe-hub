@@ -68,7 +68,7 @@ namespace RecipeHub.Application.Services
                 .OrderBy(i => i.Position)
                 .ToListAsync(ct);
 
-            return mapper.Map<List<ImageDto>>(images);
+            return mapper.Map<IReadOnlyList<ImageDto>>(images);
         }
 
         public async Task UpdateImagesPositionsAsync(int recipeId, IDictionary<int, int> imageIdToPositionMap, CancellationToken ct = default)
