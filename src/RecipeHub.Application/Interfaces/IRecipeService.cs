@@ -4,11 +4,11 @@ namespace RecipeHub.Application.Interfaces
 {
     public interface IRecipeService
     {
-        Task<IngredientDto> CreateRecipeAsync(IngredientDto dto, CancellationToken ct = default);
-        Task<IngredientDto?> GetRecipeByIdAsync(int id, CancellationToken ct = default);
-        Task<IReadOnlyList<IngredientDto>> SearchRecipesByNameAsync(string query, CancellationToken ct = default);
-        Task<IReadOnlyList<IngredientDto>> GetAllRecipesAsync(CancellationToken ct = default);
-        Task<IngredientDto?> UpdateRecipeAsync(int id, IngredientDto dto, CancellationToken ct = default);
+        Task<RecipeDto> CreateRecipeAsync(RecipeDto dto, CancellationToken ct = default);
+        Task<RecipeDto?> GetRecipeByIdAsync(int id, CancellationToken ct = default);
+        Task<IReadOnlyList<RecipeDto>> SearchRecipesByNameAsync(string query, CancellationToken ct = default);
+        Task<IReadOnlyList<RecipeDto>> GetAllRecipesAsync(CancellationToken ct = default);
+        Task<RecipeDto?> UpdateRecipeAsync(int id, RecipeDto dto, CancellationToken ct = default);
         Task<bool> DeleteRecipeAsync(int id, CancellationToken ct = default);
     }
 }
