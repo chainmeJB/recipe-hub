@@ -41,6 +41,7 @@ namespace RecipeHub.Application.Services
             var recipeIngredients = await _recipeIngredientRepository.Query()
                 .AsNoTracking()
                 .Where(ri => ri.RecipeId == recipeId)
+                .Include(ri => ri.Ingredient)
                 .ToListAsync(ct);
 
             return _mapper.Map<IReadOnlyList<RecipeIngredientDto>>(recipeIngredients);
