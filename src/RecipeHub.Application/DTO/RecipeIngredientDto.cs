@@ -3,7 +3,6 @@
     public class RecipeIngredientDto
     {
         public int RecipeId { get; set; }
-        public RecipeDto Recipe { get; set; } = null!;
 
         public int IngredientId { get; set; }
         public IngredientDto Ingredient { get; set; } = null!;
