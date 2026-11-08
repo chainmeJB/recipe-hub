@@ -20,12 +20,6 @@ namespace RecipeHub.Application.Services
 
         public async Task<RecipeIngredientDto> AddIngredientToRecipeAsync(int recipeId, RecipeIngredientDto dto, CancellationToken ct = default)
         {
-            if (dto.Quantity <= 0)
-                throw new ArgumentException("Quantity must be greater than zero.", nameof(dto.Quantity));
-
-            if (string.IsNullOrWhiteSpace(dto.Unit))
-                throw new ArgumentException("Unit must be provided.", nameof(dto.Unit));
-
             var recipeIngredient = _mapper.Map<RecipeIngredient>(dto);
 
             var alreadyExists = await _recipeIngredientRepository.Query()
