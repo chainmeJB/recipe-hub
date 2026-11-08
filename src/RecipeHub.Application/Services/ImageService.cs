@@ -73,16 +73,30 @@ namespace RecipeHub.Application.Services
 
         public async Task UpdateImagesPositionsAsync(int recipeId, IDictionary<int, int> imageIdToPositionMap, CancellationToken ct = default)
         {
+            ArgumentNullException.ThrowIfNull(imageIdToPositionMap);
+
+            if (imageIdToPositionMap.Count == 0)
+                throw new ArgumentException("At least one image position must be provided.", nameof(imageIdToPositionMap));
+
+            if (imageIdToPositionMap.Any(x => x.Key <= 0))
+                throw new ArgumentException("Image IDs must be greater than zero.", nameof(imageIdToPositionMap));
+
+            if (imageIdToPositionMap.Any(x => x.Value < 0))
+                throw new ArgumentException("Image positions cannot be negative.", nameof(imageIdToPositionMap));
+
             var images = await _imageRepository.Query(tracking: true)
                 .Where(i => i.RecipeId == recipeId)
                 .ToListAsync(ct);
 
+            if (images.Count != imageIdToPositionMap.Count || images.Any(i => !imageIdToPositionMap.ContainsKey(i.Id)))
+            {
+                throw new ArgumentException("All provided image IDs must belong to the specified recipe.", nameof(imageIdToPositionMap));
+            }
+
+
             foreach (var image in images)
             {
-                if (imageIdToPositionMap.TryGetValue(image.Id, out var position))
-                {
-                    image.Position = position;
-                }
+                image.Position = imageIdToPositionMap[image.Id];
             }
 
             await _imageRepository.SaveChangesAsync(ct);
