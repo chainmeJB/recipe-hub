@@ -13,6 +13,9 @@ namespace RecipeHub.Infrastructure.Configurations
         {
 
             builder.HasKey(ri => new { ri.RecipeId, ri.IngredientId });
+            
+            builder.HasIndex(ri => new { ri.RecipeId, ri.IngredientId })
+                .IsUnique();
 
             builder.Property(ri => ri.Quantity).HasPrecision(10, 2);
             builder.Property(ri => ri.Unit).IsRequired().HasMaxLength(32);
