@@ -14,7 +14,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 COPY ["src/RecipeHub.Api/RecipeHub.Api.csproj", "src/RecipeHub.Api/"]
-COPY ["src/RecipeHub.Infrastructure/RecipeHub.Application.csproj", "src/RecipeHub.Application/"]
+COPY ["src/RecipeHub.Application/RecipeHub.Application.csproj", "src/RecipeHub.Application/"]
 COPY ["src/RecipeHub.Infrastructure/RecipeHub.Infrastructure.csproj", "src/RecipeHub.Infrastructure/"]
 
 RUN dotnet restore "./src/RecipeHub.Api/RecipeHub.Api.csproj"
