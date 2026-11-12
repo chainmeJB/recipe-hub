@@ -1,15 +1,32 @@
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RecipeHub.Application.Auth;
 using RecipeHub.Application.Interfaces;
 using RecipeHub.Application.Services;
 using RecipeHub.Infrastructure;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddRecipeHubData(connectionString);
+    builder.Services.AddRecipeHubRepositories();
+}
+else
+{
+    throw new InvalidOperationException("Connection string is not configured.");
+}
+
+builder.Services.AddRecipeHubData(connectionString);
+builder.Services.AddRecipeHubRepositories();
 
 builder.Services.AddControllers();
 
@@ -49,6 +66,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<RecipeHubContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 
