@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using RecipeHub.Application.Auth;
 using RecipeHub.Application.Interfaces;
 using RecipeHub.Application.Services;
@@ -31,6 +32,32 @@ builder.Services.AddRecipeHubData(connectionString);
 builder.Services.AddRecipeHubRepositories();
 
 builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "RecipeHub API",
+        Version = "v1",
+        Description = "API for managing recipes, ingredients, categories and users."
+    });
+
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Paste the JWT access token here."
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, document)] = new List<string>()
+    });
+});
 
 var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
 builder.Services.Configure<JwtOptions>(jwtSection);
@@ -80,6 +107,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "RecipeHub API v1");
+});
 
 app.UseHttpsRedirection();
 
