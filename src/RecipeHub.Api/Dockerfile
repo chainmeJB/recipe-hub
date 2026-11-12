@@ -12,8 +12,13 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["src/RecipeHub.Api/RecipeHub.Api.csproj", "src/RecipeHub.Api/"]
+COPY ["src/RecipeHub.Infrastructure/RecipeHub.Application.csproj", "src/RecipeHub.Application/"]
+COPY ["src/RecipeHub.Infrastructure/RecipeHub.Infrastructure.csproj", "src/RecipeHub.Infrastructure/"]
+
 RUN dotnet restore "./src/RecipeHub.Api/RecipeHub.Api.csproj"
+
 COPY . .
 WORKDIR "/src/src/RecipeHub.Api"
 RUN dotnet build "./RecipeHub.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
