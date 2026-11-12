@@ -7,13 +7,15 @@ using RecipeHub.Application.Services;
 using RecipeHub.Infrastructure;
 using System.Security.Claims;
 using System.Text;
+using RecipeHub.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("Default__Connection");
 
 if (!string.IsNullOrEmpty(connectionString))
 {
@@ -60,7 +62,11 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddRecipeHubRepositories();
+builder.Services.AddAutoMapper(config =>
+{
+    config.AddProfile<MappingProfile>();
+});
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
