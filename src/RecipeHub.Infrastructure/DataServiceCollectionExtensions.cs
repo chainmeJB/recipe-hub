@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RecipeHub.Infrastructure.Repositories;
 
 namespace RecipeHub.Infrastructure
@@ -9,7 +10,7 @@ namespace RecipeHub.Infrastructure
         {
             services.AddDbContext<RecipeHubContext>(options =>
             {
-                // TODO: add actual DB provider and connection string configuration here
+                options.UseNpgsql(connectionString);
             });
             
             return services;
