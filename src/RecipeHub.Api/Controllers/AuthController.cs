@@ -1,10 +1,12 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHub.Api.Request_Models;
+using RecipeHub.Api.Response_Models;    
 using RecipeHub.Application.Dto;
 using RecipeHub.Application.Dto.Auth;
 using RecipeHub.Application.Interfaces;
-
+using AutoMapper;
 namespace RecipeHub.Api.Controllers
 {
     [ApiController]
@@ -13,19 +15,22 @@ namespace RecipeHub.Api.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public AuthController(IAuthService authService, IUserService userService)
+        public AuthController(IAuthService authService, IUserService userService, IMapper mapper)
         {
             _authService = authService;
             _userService = userService;
+            _mapper = mapper;
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponseDto>> Register(RegisterRequestDto dto, CancellationToken ct)
+        public async Task<ActionResult<AuthResponseModel>> Register(RegisterRequestModel model, CancellationToken ct)
         {
             try
             {
+                var dto = _mapper.Map<RegisterRequestDto>(model);
                 return Ok(await _authService.RegisterAsync(dto, ct));
             }
             catch (InvalidOperationException ex)
@@ -36,7 +41,9 @@ namespace RecipeHub.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponseDto>> Login(LoginRequestDto dto, CancellationToken ct)
+        public async Task<ActionResult<AuthResponseModel>> Login(LoginRequestModel model, CancellationToken ct)
+        {
+            var dto = _mapper.Map<LoginRequestDto>(model);
         {
             var result = await _authService.LoginAsync(dto, ct);
 
