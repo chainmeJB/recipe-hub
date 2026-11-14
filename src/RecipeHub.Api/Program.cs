@@ -1,14 +1,15 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using RecipeHub.Application;
 using RecipeHub.Application.Auth;
 using RecipeHub.Application.Interfaces;
 using RecipeHub.Application.Services;
 using RecipeHub.Infrastructure;
 using System.Security.Claims;
 using System.Text;
-using RecipeHub.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ if (!string.IsNullOrEmpty(connectionString))
 {
     builder.Services.AddRecipeHubData(connectionString);
     builder.Services.AddRecipeHubRepositories();
+    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 }
 else
 {
