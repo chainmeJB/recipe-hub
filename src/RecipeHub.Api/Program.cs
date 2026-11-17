@@ -30,9 +30,6 @@ else
     throw new InvalidOperationException("Connection string is not configured.");
 }
 
-builder.Services.AddRecipeHubData(connectionString);
-builder.Services.AddRecipeHubRepositories();
-
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -99,6 +96,9 @@ builder.Services.AddAutoMapper(config =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IRecipeIngredientService, RecipeIngredientService>();
+builder.Services.AddScoped<IRecipeService, RecipeService>();
 
 var app = builder.Build();
 
