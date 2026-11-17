@@ -17,6 +17,7 @@ namespace RecipeHub.Api
             CreateMap<UserDto, UserRecipesResponseModel>();
             // short user response model
             CreateMap<UserRecipesResponseModel, UserResponseModel>();
+            CreateMap<UserDto, UserResponseModel>();
 
             //Image mapping
             CreateMap<ImageRequestModel, ImageDto>();
