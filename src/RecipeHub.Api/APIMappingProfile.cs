@@ -5,9 +5,9 @@ using RecipeHub.Application.Dto;
 using RecipeHub.Application.Dto.Auth;
 namespace RecipeHub.Api
 {
-    public class MappingProfile : Profile
+    public class APIMappingProfile : Profile
     {
-        public MappingProfile()
+        public APIMappingProfile()
         {
             //User mapping
             CreateMap<RegisterRequestModel, RegisterRequestDto>();

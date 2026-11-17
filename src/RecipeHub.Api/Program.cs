@@ -10,6 +10,7 @@ using RecipeHub.Application.Services;
 using RecipeHub.Infrastructure;
 using System.Security.Claims;
 using System.Text;
+using RecipeHub.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<MappingProfile>();
+    config.AddProfile<APIMappingProfile>();
 });
 
 builder.Services.AddScoped<IUserService, UserService>();
