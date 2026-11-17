@@ -7,12 +7,12 @@ using RecipeHub.Application.Interfaces;
 
 namespace RecipeHub.Application.Services
 {
-    public class IngredienService : IIngredientService
+    public class IngredientService : IIngredientService
     {
         readonly IRepository<Ingredient> _ingredientRepository;
         readonly IMapper _mapper;
 
-        public IngredienService(IRepository<Ingredient> ingredientRepository, IMapper mapper)
+        public IngredientService(IRepository<Ingredient> ingredientRepository, IMapper mapper)
         {
             _ingredientRepository = ingredientRepository;
             _mapper = mapper;

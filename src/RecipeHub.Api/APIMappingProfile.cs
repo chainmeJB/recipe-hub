@@ -28,6 +28,7 @@ namespace RecipeHub.Api
             CreateMap<CategoryDto, CategoryRecipesResponseModel>();
             // short category response model
             CreateMap<CategoryRecipesResponseModel, CategoryResponseModel>();
+            CreateMap<CategoryDto, CategoryResponseModel>();
 
             //Ingredient mapping
             CreateMap<IngredientRequestModel, IngredientDto>();
