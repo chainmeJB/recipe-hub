@@ -35,7 +35,7 @@ namespace RecipeHub.Application.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == recipe.Id, ct);
 
-            return _mapper.Map<RecipeDto>(recipe);
+            return _mapper.Map<RecipeDto>(created);
         }
 
         public async Task<RecipeDto?> GetRecipeByIdAsync(int id, CancellationToken ct = default)
