@@ -63,6 +63,11 @@ namespace RecipeHub.Application.Services
         public async Task<IReadOnlyList<RecipeDto>> GetAllRecipesAsync(CancellationToken ct = default)
         {
             var recipes = await _recipeRepository.Query()
+                .Include(r => r.Author)
+                .Include(r => r.Category)
+                .Include(r => r.Images)
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
                 .AsNoTracking()
                 .ToListAsync(ct);
 
