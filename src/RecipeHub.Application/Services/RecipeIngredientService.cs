@@ -64,9 +64,14 @@ namespace RecipeHub.Application.Services
             recipeIngredient.Unit = dto.Unit;
             recipeIngredient.Note = dto.Note;
 
+            var updated = await _recipeIngredientRepository.Query()
+                .AsNoTracking()
+                .Include(ri => ri.Ingredient)
+                .FirstAsync(ri => ri.RecipeId == recipeId && ri.IngredientId == ingredientId, ct);
+
             await _recipeIngredientRepository.SaveChangesAsync(ct);
 
-            return _mapper.Map<RecipeIngredientDto>(recipeIngredient);
+            return _mapper.Map<RecipeIngredientDto>(updated);
         }
 
         public async Task<bool> RemoveIngredientFromRecipeAsync(int recipeId, int ingredientId, CancellationToken ct = default)
