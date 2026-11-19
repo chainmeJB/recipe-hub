@@ -33,7 +33,12 @@ namespace RecipeHub.Application.Services
             _recipeIngredientRepository.Add(recipeIngredient);
             await _recipeIngredientRepository.SaveChangesAsync(ct);
 
-            return _mapper.Map<RecipeIngredientDto>(recipeIngredient);
+            var created = await _recipeIngredientRepository.Query()
+                .AsNoTracking()
+                .Include(ri => ri.Ingredient)
+                .FirstAsync(ri => ri.RecipeId == recipeId && ri.IngredientId == recipeIngredient.IngredientId, ct);
+
+            return _mapper.Map<RecipeIngredientDto>(created);
         }
 
         public async Task<IReadOnlyList<RecipeIngredientDto>> GetByRecipeIdAsync(int recipeId, CancellationToken ct = default)
