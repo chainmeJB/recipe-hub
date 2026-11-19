@@ -14,7 +14,7 @@ namespace RecipeHub.Api.Request_Models
         public int Servings { get; set; } = 1;
         public int CookTimeMinutes { get; set; }
 
-        public ICollection<ImageResponseModel> Images { get; set; } = new List<ImageResponseModel>();
-        public ICollection<RecipeIngredientResponseModel> RecipeIngredients { get; set; } = new List<RecipeIngredientResponseModel>();
+        public ICollection<ImageRequestModel> Images { get; set; } = new List<ImageRequestModel>();
+        public ICollection<RecipeIngredientRequestModel> RecipeIngredients { get; set; } = new List<RecipeIngredientRequestModel>();
     }
 }
