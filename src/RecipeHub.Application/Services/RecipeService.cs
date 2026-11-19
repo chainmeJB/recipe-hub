@@ -54,6 +54,11 @@ namespace RecipeHub.Application.Services
 
             var recipes = await _recipeRepository.Query()
                 .AsNoTracking()
+                .Include(r => r.Author)
+                .Include(r => r.Category)
+                .Include(r => r.Images)
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
                 .Where(r => r.Title.ToLower().Contains(query.ToLower()))
                 .ToListAsync(ct);
 
