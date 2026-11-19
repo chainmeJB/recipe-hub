@@ -27,6 +27,14 @@ namespace RecipeHub.Application.Services
             _recipeRepository.Add(recipe);
             await _recipeRepository.SaveChangesAsync(ct);
 
+            var created = await _recipeRepository.Query()
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
+                .Include(r => r.Author)
+                .Include(r => r.Category)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == recipe.Id, ct);
+
             return _mapper.Map<RecipeDto>(recipe);
         }
 
@@ -96,7 +104,16 @@ namespace RecipeHub.Application.Services
 
             await _recipeRepository.SaveChangesAsync(ct);
 
-            return _mapper.Map<RecipeDto>(recipe);
+            var updated = await _recipeRepository.Query()
+                .Include(r => r.Author)
+                .Include(r => r.Category)
+                .Include(r => r.Images)
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == id, ct);
+
+            return _mapper.Map<RecipeDto>(updated);
         }
 
         public async Task<bool> DeleteRecipeAsync(int id, CancellationToken ct = default)
