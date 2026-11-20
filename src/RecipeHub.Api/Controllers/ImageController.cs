@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHub.Api.Authorization;
 using RecipeHub.Api.Request_Models;
 using RecipeHub.Api.Response_Models;
 using RecipeHub.Application.Dto;
@@ -10,26 +11,35 @@ namespace RecipeHub.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = AuthPolicies.User)]
     public class ImageController : ControllerBase
     {
         private readonly IImageService _imageService;
+        private readonly IRecipeService _recipeService;
         private readonly IMapper _mapper;
 
-        public ImageController(IImageService imageService, IMapper mapper)
+        public ImageController(IImageService imageService, IRecipeService recipeService, IMapper mapper)
         {
             _imageService = imageService;
+            _recipeService = recipeService;
             _mapper = mapper;
         }
 
         [HttpPost("recipes/{recipeId:int}/images")]
         [ProducesResponseType(typeof(ImageResponseModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult<ImageResponseModel>> AddImageToRecipe(
             int recipeId,
             [FromBody] ImageRequestModel model,
             CancellationToken ct)
         {
+            var accessResult = await EnsureCanManageRecipeAsync(recipeId, ct);
+            if (accessResult is not null)
+                return accessResult;
+
             var dto = _mapper.Map<ImageDto>(model);
             var created = await _imageService.AddImageToRecipeAsync(recipeId, dto, ct);
 
@@ -41,6 +51,8 @@ namespace RecipeHub.Api.Controllers
 
         [HttpPut("{imageId:int}/primary")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> SetImagePrimary(
@@ -48,6 +60,10 @@ namespace RecipeHub.Api.Controllers
             [FromQuery] int recipeId,
             CancellationToken ct)
         {
+            var accessResult = await EnsureCanManageRecipeAsync(recipeId, ct);
+            if (accessResult is not null)
+                return accessResult;
+
             var updated = await _imageService.SetImagePrimaryAsync(imageId, recipeId, ct);
             if (!updated)
                 return NotFound();
@@ -82,12 +98,19 @@ namespace RecipeHub.Api.Controllers
         [HttpPatch("recipes/{recipeId:int}/positions")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> UpdateImagesPositions(
             int recipeId,
             [FromBody] IDictionary<int, int> positions,
             CancellationToken ct)
         {
+            var accessResult = await EnsureCanManageRecipeAsync(recipeId, ct);
+            if (accessResult is not null)
+                return accessResult;
+
             try
             {
                 await _imageService.UpdateImagesPositionsAsync(recipeId, positions, ct);
@@ -101,14 +124,42 @@ namespace RecipeHub.Api.Controllers
 
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteImage(int id, CancellationToken ct)
         {
+            var image = await _imageService.GetImageByIdAsync(id, ct);
+            if (image is null)
+                return NotFound();
+
+            var accessResult = await EnsureCanManageRecipeAsync(image.RecipeId, ct);
+            if (accessResult is not null)
+                return accessResult;
+
             var deleted = await _imageService.DeleteImageAsync(id, ct);
             if (!deleted)
                 return NotFound();
 
             return NoContent();
+        }
+
+        private async Task<ActionResult?> EnsureCanManageRecipeAsync(int recipeId, CancellationToken ct)
+        {
+            if (User.IsAdmin())
+                return null;
+
+            if (!User.TryGetUserId(out var userId))
+                return Unauthorized();
+
+            var recipe = await _recipeService.GetRecipeByIdAsync(recipeId, ct);
+            if (recipe is null)
+                return NotFound();
+
+            if (recipe.AuthorId != userId)
+                return Forbid();
+
+            return null;
         }
     }
 }

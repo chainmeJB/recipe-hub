@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHub.Api.Authorization;
 using RecipeHub.Api.Request_Models;
 using RecipeHub.Api.Response_Models;
 using RecipeHub.Application.Dto;
@@ -11,7 +11,7 @@ namespace RecipeHub.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = AuthPolicies.User)]
     public class RecipeController : ControllerBase
     {
         private readonly IRecipeService _recipeService;
@@ -31,7 +31,7 @@ namespace RecipeHub.Api.Controllers
             [FromBody] RecipeRequestModel model,
             CancellationToken ct)
         {
-            if (!TryGetCurrentUserId(out var authorId))
+            if (!User.TryGetUserId(out var authorId))
                 return Unauthorized();
 
             var dto = _mapper.Map<RecipeDto>(model);
@@ -80,6 +80,8 @@ namespace RecipeHub.Api.Controllers
 
         [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(RecipeResponseModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult<RecipeResponseModel>> UpdateRecipe(
@@ -87,6 +89,10 @@ namespace RecipeHub.Api.Controllers
             [FromBody] RecipeRequestModel model,
             CancellationToken ct)
         {
+            var accessResult = await EnsureCanManageRecipeAsync(id, ct);
+            if (accessResult is not null)
+                return accessResult;
+
             var dto = _mapper.Map<RecipeDto>(model);
             dto.Id = id;
 
@@ -99,9 +105,15 @@ namespace RecipeHub.Api.Controllers
 
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRecipe(int id, CancellationToken ct)
         {
+            var accessResult = await EnsureCanManageRecipeAsync(id, ct);
+            if (accessResult is not null)
+                return accessResult;
+
             var deleted = await _recipeService.DeleteRecipeAsync(id, ct);
             if (!deleted)
                 return NotFound();
@@ -109,10 +121,22 @@ namespace RecipeHub.Api.Controllers
             return NoContent();
         }
 
-        private bool TryGetCurrentUserId(out int userId)
+        private async Task<ActionResult?> EnsureCanManageRecipeAsync(int id, CancellationToken ct)
         {
-            var rawUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(rawUserId, out userId);
+            if (User.IsAdmin())
+                return null;
+
+            if (!User.TryGetUserId(out var userId))
+                return Unauthorized();
+
+            var recipe = await _recipeService.GetRecipeByIdAsync(id, ct);
+            if (recipe is null)
+                return NotFound();
+
+            if (recipe.AuthorId != userId)
+                return Forbid();
+
+            return null;
         }
     }
 }

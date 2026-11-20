@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHub.Api.Authorization;
 using RecipeHub.Api.Response_Models;
 using RecipeHub.Application.Dto.Enums;
 using RecipeHub.Application.Interfaces;
@@ -9,7 +10,8 @@ namespace RecipeHub.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = AuthPolicies.Admin)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -53,7 +55,6 @@ namespace RecipeHub.Api.Controllers
             return Ok(_mapper.Map<UserResponseModel>(user));
         }
 
-        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPatch("{id:int}/role")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -66,7 +67,6 @@ namespace RecipeHub.Api.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

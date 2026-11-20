@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHub.Api.Authorization;
 using RecipeHub.Api.Request_Models;
 using RecipeHub.Api.Response_Models;
 using RecipeHub.Application.Interfaces;
@@ -9,7 +10,6 @@ namespace RecipeHub.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -21,8 +21,10 @@ namespace RecipeHub.Api.Controllers
             _mapper = mapper;
         }
 
+        [Authorize(Policy = AuthPolicies.Admin)]
         [HttpPost]
         [ProducesResponseType(typeof(CategoryResponseModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult<CategoryResponseModel>> CreateCategory(
             [FromBody] CategoryRequestModel model,
@@ -73,8 +75,10 @@ namespace RecipeHub.Api.Controllers
             return Ok(_mapper.Map<IReadOnlyList<CategoryResponseModel>>(categories));
         }
 
+        [Authorize(Policy = AuthPolicies.Admin)]
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> UpdateCategory(
@@ -89,8 +93,10 @@ namespace RecipeHub.Api.Controllers
             return NoContent();
         }
 
+        [Authorize(Policy = AuthPolicies.Admin)]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCategory(int id, CancellationToken ct)
         {

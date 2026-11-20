@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHub.Api.Authorization;
 using RecipeHub.Api.Request_Models;
 using RecipeHub.Api.Response_Models;
 using RecipeHub.Application.Dto;
@@ -10,7 +11,6 @@ namespace RecipeHub.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class IngredientController : ControllerBase
     {
         private readonly IIngredientService _ingredientService;
@@ -22,8 +22,10 @@ namespace RecipeHub.Api.Controllers
             _mapper = mapper;
         }
 
+        [Authorize(Policy = AuthPolicies.Admin)]
         [HttpPost]
         [ProducesResponseType(typeof(IngredientResponseModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult<IngredientResponseModel>> CreateIngredient(
             [FromBody] IngredientRequestModel model,
@@ -71,8 +73,10 @@ namespace RecipeHub.Api.Controllers
             return Ok(_mapper.Map<IReadOnlyList<IngredientResponseModel>>(ingredients));
         }
 
+        [Authorize(Policy = AuthPolicies.Admin)]
         [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(IngredientResponseModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult<IngredientResponseModel>> UpdateIngredient(
@@ -90,8 +94,10 @@ namespace RecipeHub.Api.Controllers
             return Ok(_mapper.Map<IngredientResponseModel>(updated));
         }
 
+        [Authorize(Policy = AuthPolicies.Admin)]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteIngredient(int id, CancellationToken ct)
         {

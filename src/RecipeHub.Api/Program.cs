@@ -11,6 +11,8 @@ using RecipeHub.Infrastructure;
 using System.Security.Claims;
 using System.Text;
 using RecipeHub.Api;
+using RecipeHub.Api.Authorization;
+using RecipeHub.Application.Dto.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,7 +89,16 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AuthPolicies.User, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole(nameof(UserRole.User), nameof(UserRole.Admin)));
+
+    options.AddPolicy(AuthPolicies.Admin, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole(nameof(UserRole.Admin)));
+});
 
 builder.Services.AddAutoMapper(config =>
 {

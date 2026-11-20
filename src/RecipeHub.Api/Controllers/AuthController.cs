@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHub.Api.Authorization;
 using RecipeHub.Api.Request_Models;
 using RecipeHub.Api.Response_Models;
 using RecipeHub.Application.Dto.Auth;
@@ -62,7 +63,7 @@ namespace RecipeHub.Api.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        [Authorize(Policy = AuthPolicies.User)]
         [HttpGet("me")]
         [ProducesResponseType(typeof(UserResponseModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
